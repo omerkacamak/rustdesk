@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       customer-id:
-        description: Customer ID to embed in the build (example: ACME-001)
+        description: Customer ID to embed in the build (example: ACME-00s1)
         required: false
         type: string
       server-id:
