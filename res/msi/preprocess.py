@@ -88,6 +88,31 @@ def make_parser():
         default="PURSLANE",
         help="The app manufacturer.",
     )
+    # New options: customer/server config to embed as a default runtime config file
+    parser.add_argument(
+        "--customer-id",
+        type=str,
+        default="",
+        help="Optional customer ID to embed as default.",
+    )
+    parser.add_argument(
+        "--server-id",
+        type=str,
+        default="",
+        help="Optional server id to embed as default.",
+    )
+    parser.add_argument(
+        "--server-key",
+        type=str,
+        default="",
+        help="Optional server key to embed as default. (Consider security implications)",
+    )
+    parser.add_argument(
+        "--config-json",
+        type=str,
+        default="",
+        help="Path to a json file with config keys to merge into the default config.",
+    )
     return parser
 
 
@@ -529,6 +554,38 @@ if __name__ == "__main__":
 
     if not prepare_resources():
         sys.exit(-1)
+
+    # If packaging-time customer/server config is provided, write a default
+    # runtime config file into the distribution folder so it will be included
+    # in the installer. This allows easy post-install edits without rebuilding.
+    if args.customer_id or args.server_id or args.server_key or args.config_json:
+        cfg = {}
+        if args.customer_id:
+            cfg["customer_id"] = args.customer_id
+        if args.server_id:
+            cfg["server_id"] = args.server_id
+        if args.server_key:
+            cfg["server_key"] = args.server_key
+        if args.config_json:
+            try:
+                with open(args.config_json, "r", encoding="utf-8") as cf:
+                    cfg_from_file = json.load(cf)
+                if isinstance(cfg_from_file, dict):
+                    cfg.update(cfg_from_file)
+                else:
+                    print(f"Warning: {args.config_json} did not contain a JSON object")
+            except Exception as e:
+                print(f"Failed to read config json {args.config_json}: {e}")
+                sys.exit(-1)
+        if cfg:
+            config_path = dist_dir.joinpath("rustdesk_config.json")
+            try:
+                with open(config_path, "w", encoding="utf-8") as f:
+                    json.dump(cfg, f, indent=2)
+                print(f"Wrote default config to {config_path}")
+            except Exception as e:
+                print(f"Failed to write default config to {config_path}: {e}")
+                sys.exit(-1)
 
     if not init_global_vars(dist_dir, app_name, args):
         sys.exit(-1)

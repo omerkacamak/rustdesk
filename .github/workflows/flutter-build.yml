@@ -9,6 +9,18 @@ on:
       upload-tag:
         type: string
         default: "nightly"
+      customer-id:
+        type: string
+        default: ""
+      server-id:
+        type: string
+        default: ""
+      server-key:
+        type: string
+        default: ""
+      config-json:
+        type: string
+        default: ""
 
 # NOTE: F-Droid builder script 'flutter/build_fdroid.sh' reads environment
 # variables from this workflow!
@@ -257,13 +269,20 @@ jobs:
 
       - name: Build msi
         if: env.UPLOAD_ARTIFACT == 'true'
+        shell: pwsh
         run: |
-          pushd ./res/msi
-          python preprocess.py --arp -d ../../rustdesk
+          Push-Location ./res/msi
+          $argsList = @('--arp', '-d', '../../rustdesk')
+          if ("${{ inputs.customer-id }}" -ne "") { $argsList += @('--customer-id', "${{ inputs.customer-id }}") }
+          if ("${{ inputs.server-id }}" -ne "") { $argsList += @('--server-id', "${{ inputs.server-id }}") }
+          if ("${{ inputs.server-key }}" -ne "") { $argsList += @('--server-key', "${{ inputs.server-key }}") }
+          if ("${{ inputs.config-json }}" -ne "") { $argsList += @('--config-json', "${{ inputs.config-json }}") }
+          python preprocess.py @argsList
           nuget restore msi.sln
           msbuild msi.sln -p:Configuration=Release -p:Platform=x64 /p:TargetVersion=Windows10
           mv ./Package/bin/x64/Release/en-us/Package.msi ../../SignOutput/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.msi
           sha256sum ../../SignOutput/rustdesk-*.msi
+          Pop-Location
 
       - name: Sign rustdesk self-extracted file
         if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != '-2'
