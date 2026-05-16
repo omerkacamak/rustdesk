@@ -9,16 +9,16 @@ on:
       upload-tag:
         type: string
         default: "nightly"
-      customer-id:
+      customer_id:
         type: string
         default: ""
-      server-id:
+      server_id:
         type: string
         default: ""
-      server-key:
+      server_key:
         type: string
         default: ""
-      config-json:
+      config_json:
         type: string
         default: ""
 
@@ -273,10 +273,10 @@ jobs:
         run: |
           Push-Location ./res/msi
           $argsList = @('--arp', '-d', '../../rustdesk')
-          if ("${{ inputs.customer-id }}" -ne "") { $argsList += @('--customer-id', "${{ inputs.customer-id }}") }
-          if ("${{ inputs.server-id }}" -ne "") { $argsList += @('--server-id', "${{ inputs.server-id }}") }
-          if ("${{ inputs.server-key }}" -ne "") { $argsList += @('--server-key', "${{ inputs.server-key }}") }
-          if ("${{ inputs.config-json }}" -ne "") { $argsList += @('--config-json', "${{ inputs.config-json }}") }
+          if ("${{ inputs.customer_id }}" -ne "") { $argsList += @('--customer-id', "${{ inputs.customer_id }}") }
+          if ("${{ inputs.server_id }}" -ne "") { $argsList += @('--server-id', "${{ inputs.server_id }}") }
+          if ("${{ inputs.server_key }}" -ne "") { $argsList += @('--server-key', "${{ inputs.server_key }}") }
+          if ("${{ inputs.config_json }}" -ne "") { $argsList += @('--config-json', "${{ inputs.config_json }}") }
           python preprocess.py @argsList
           nuget restore msi.sln
           msbuild msi.sln -p:Configuration=Release -p:Platform=x64 /p:TargetVersion=Windows10

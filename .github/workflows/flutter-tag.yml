@@ -3,20 +3,20 @@ name: Flutter Tag Build
 on:
   workflow_dispatch:
     inputs:
-      customer-id:
-        description: Customer ID to embed in the build (example: ACME-00s1)
+      customer_id:
+        description: "Customer ID to embed in the build (example: ACME-001)"
         required: false
         type: string
-      server-id:
-        description: Server ID to embed in the build (example: srv-acme-01)
+      server_id:
+        description: "Server ID to embed in the build (example: srv-acme-01)"
         required: false
         type: string
-      server-key:
-        description: Server key to embed in the build (example: a short-lived token)
+      server_key:
+        description: "Server key to embed in the build (example: a short-lived token)"
         required: false
         type: string
-      config-json:
-        description: Path or JSON config to merge into build defaults (example: {"customer_id":"ACME-001","server_id":"srv-acme-01"})
+      config_json:
+        description: "Path or JSON config to merge into build defaults (example: {\"customer_id\":\"ACME-001\",\"server_id\":\"srv-acme-01\"})"
         required: false
         type: string
   push:
@@ -33,7 +33,7 @@ jobs:
     with:
       upload-artifact: true
       upload-tag: ${{ github.ref_name }}
-      customer-id: ${{ inputs.customer-id }}
-      server-id: ${{ inputs.server-id }}
-      server-key: ${{ inputs.server-key }}
-      config-json: ${{ inputs.config-json }}
+      customer_id: ${{ inputs.customer_id }}
+      server_id: ${{ inputs.server_id }}
+      server_key: ${{ inputs.server_key }}
+      config_json: ${{ inputs.config_json }}
