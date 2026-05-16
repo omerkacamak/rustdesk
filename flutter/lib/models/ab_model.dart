@@ -399,9 +399,11 @@ class AbModel {
     List<Map<String, dynamic>> ps,
     String name,
   ) async {
-    final ab = addressbooks[name];
+    var ab = addressbooks[name];
     if (ab == null) {
-      return 'no such addressbook: $name';
+      // Create a local address book when missing so users can add customers/devices without login
+      addressbooks[name] = Ab(AbProfile('', name, '', null, ShareRule.fullControl.value, null), false);
+      ab = addressbooks[name];
     }
     for (var p in ps) {
       ab.removeNonExistentTags(p);
@@ -1114,6 +1116,14 @@ class LegacyAb extends BaseAb {
         break;
       }
     }
+    // If not logged in, persist locally and skip server push
+    if (!gFFI.userModel.isLogin) {
+      gFFI.abModel._saveCache();
+      if (full) {
+        return translate("exceed_max_devices");
+      }
+      return null;
+    }
     if (!await pushAb()) {
       return "Failed to push to server";
     } else if (full) {
@@ -1546,6 +1556,35 @@ class Ab extends BaseAb {
 // #region Peers
   @override
   Future<String?> addPeers(List<Map<String, dynamic>> ps) async {
+    // If not logged in, persist peers locally and skip server API calls.
+    if (!gFFI.userModel.isLogin) {
+      bool full = false;
+      try {
+        for (var p in ps) {
+          if (peers.firstWhereOrNull((e) => e.id == p['id']) != null) {
+            continue;
+          }
+          if (isFull()) {
+            full = true;
+            break;
+          }
+          if (personal) {
+            removePassword(p);
+          } else {
+            removeHash(p);
+          }
+          peers.add(Peer.fromJson(p));
+        }
+        gFFI.abModel._saveCache();
+        if (full) {
+          return translate("exceed_max_devices");
+        }
+        return null;
+      } catch (err) {
+        return err.toString();
+      }
+    }
+
     try {
       final api =
           "${await bind.mainGetApiServer()}/api/ab/peer/add/${profile.guid}";
