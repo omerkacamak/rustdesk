@@ -3,7 +3,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
     [
         ("Status", "Durum"),
         ("Your Desktop", "Sizin Masaüstünüz"),
-        ("desk_tip", "Masaüstünüze bu ID ve parola ile erişilebilir"),
+        ("desk_tip", "KACAMAKTECH tarafından geliştirilen uzak masaüstü yazılımı"),
         ("Password", "Parola"),
         ("Ready", "Hazır"),
         ("Established", "Bağlantı sağlandı"),

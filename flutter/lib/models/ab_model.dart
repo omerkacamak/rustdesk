@@ -406,9 +406,9 @@ class AbModel {
       ab = addressbooks[name];
     }
     for (var p in ps) {
-      ab.removeNonExistentTags(p);
+      ab?.removeNonExistentTags(p);
     }
-    String? errMsg = await ab.addPeers(ps);
+    String? errMsg = await ab?.addPeers(ps);
     await pullNonLegacyAfterChange(name: name);
     if (name == _currentName.value) {
       _refreshTab();
