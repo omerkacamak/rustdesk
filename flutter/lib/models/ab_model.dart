@@ -399,16 +399,19 @@ class AbModel {
     List<Map<String, dynamic>> ps,
     String name,
   ) async {
-    var ab = addressbooks[name];
+    BaseAb? ab = addressbooks[name];
     if (ab == null) {
       // Create a local address book when missing so users can add customers/devices without login
       addressbooks[name] = Ab(AbProfile('', name, '', null, ShareRule.fullControl.value, null), false);
       ab = addressbooks[name];
     }
-    for (var p in ps) {
-      ab?.removeNonExistentTags(p);
+    if (ab == null) {
+      return 'Failed to create address book';
     }
-    String? errMsg = await ab?.addPeers(ps);
+    for (var p in ps) {
+      ab.removeNonExistentTags(p);
+    }
+    String? errMsg = await ab.addPeers(ps);
     await pullNonLegacyAfterChange(name: name);
     if (name == _currentName.value) {
       _refreshTab();
